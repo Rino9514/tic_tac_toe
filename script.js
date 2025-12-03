@@ -35,8 +35,8 @@ const gameBoard = (function() {
     loopOnBoard((ii,jj) => { board[ii][jj] = null; });
   };
 
-  // return if board have min 1 empty cell empty, else false
-  const isFull = () => {
+  // return true if board have min 1  cell empty, else false
+  const hasEmptyCell = () => {
     let result= false;   // local variable to escape a potential bad behavior of the calculation of state
     loopOnBoard((ii,jj) => {
       if(board[ii][jj] === null){
@@ -64,7 +64,7 @@ const gameBoard = (function() {
                                        return true;
   };
 
-  return{getBoard,resetBoard,setBoard,isFull,winnerCheck};
+  return{getBoard,resetBoard,setBoard,hasEmptyCell,winnerCheck};
 })();
 
 // factory function for players (2 instances)
@@ -96,29 +96,53 @@ function createPlayer (name, marker) {
 };
 
 const gamecontroller = (function() {
-  const tab_player = [createPlayer(1,"o"), createPlayer(2,"x")];
-  let index_players = 0;
+  const players = [createPlayer(1,"o"), createPlayer(2,"x")];
+  let currentPlayerIndex = 0;
+  let draw = false;
 
   // private functions
-  const game = () => {
-    do {
-      for(let ii = index_players; ii < tab_player.length; ii++) {
-        gameBoard.getBoard();
-        const x = parseInt(prompt("player " + tab_player[ii].getName() + " where do you play on x : "),10);
-        const y = parseInt(prompt("player " + tab_player[ii].getName() + " where do you play on y : "),10);
-
-        if (!gameBoard.setBoard(x,y,tab_player[ii].getMarker())) { // stop if input not valid
-          console.log("Invalid move, try again.");
-          break;
-        }
-        index_players = (index_players + 1) % 2;
-
+  // return true if the game is over, else false
+  const endGame = () => {
+    if (gameBoard.winnerCheck(players[currentPlayerIndex].getMarker())) {
+      players[currentPlayerIndex].addScore();
+      return true;
+    } else if (!gameBoard.hasEmptyCell()){
+      draw = true;
+      return true;
       }
-    } while (!gameBoard.isFull() &&
-             !winnerCheck(tab_player[0].getMarker()) &&
-             !winnerCheck(tab_player[1].getMarker()));
+    return false;
   };
-  return {game}
+
+  const displayEndGame = () => {
+    if (draw) console.log("This is a draw.");
+    else console.log("player "+players[currentPlayerIndex].getName()+ " has win the game.")
+  }
+
+  const resetVar = () => {
+    currentPlayerIndex = 0;
+    draw = false;
+  }
 
   // public functions
+  const game = () => {
+    gameBoard.resetBoard();
+    resetVar();
+    // loop of the game
+    while (true) {
+      const x = parseInt(prompt("player " + players[currentPlayerIndex].getName() + " where do you play on x : "),10);
+      const y = parseInt(prompt("player " + players[currentPlayerIndex].getName() + " where do you play on y : "),10);
+
+      if (!gameBoard.setBoard(x,y,players[currentPlayerIndex].getMarker())) { // stop if input not valid
+        console.log("Invalid move, try again.");
+        continue; // retry for the current player
+      }
+      if (endGame()) {
+        displayEndGame();
+        return;
+      }
+      currentPlayerIndex = (currentPlayerIndex + 1) % 2;
+      // console.log(!gameBoard.hasEmptyCell(),!gameBoard.winnerCheck(players[0].getMarker()), !gameBoard.winnerCheck(players[1].getMarker()))
+    };
+  };
+  return {game}
 })();
