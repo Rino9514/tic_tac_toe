@@ -1,3 +1,97 @@
-p {
-  color: aquamarine;
+/* RESET STYLES */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+/* RESET STYLES */
+
+body,
+html {
+  font-family: system-ui;
+  height: 100%;
+  font-size: 24px;
+}
+
+:root{
+  --v_white_color: #ffffff;
+  --v_blue_light_color: #2892d0;
+  --v_blue_dark_color: #1c6996;
+  --v_blue_hyper_dark_color: #134b6b;
+  --v_grey_light_color: #e2e7f1;
+  --v_grey_dark_color: #8d8e91;
+  --v_grey_blur: #dadada;
+  --v_black_text: #000000;
+}
+.center {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.game_container {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-rows: 1fr 1fr 1fr;
+  gap: 2px;
+  height: 500px;
+  width: 500px;
+  box-shadow: 0px 2px 10px 0px var(--v_grey_blur);
+  border-radius: 10px;
+  border: 1px solid #ccc;
+}
+
+.container{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.score_container{
+  display: flex;
+  flex-direction: row;
+  justify-content:space-between;
+  width: 100%;
+}
+
+.prompter{
+}
+
+.actions_buttons{
+  display: flex;
+  flex-direction: row;
+  justify-content:space-between;
+  width: 100%;
+}
+
+button {
+  border-radius: 30px;
+  background-color: var(--v_blue_light_color);
+  color: var(--v_white_color);
+  font-size: 0.6rem;
+  width: 125px;
+  height: 40px;
+  transition: all 0.25s ease;
+
+}
+
+button:hover {
+  background: var(--v_blue_dark_color);
+  color: var(--v_grey_light_color);
+  cursor: pointer;
+}
+
+button:active {
+  background: var(--v_blue_hyper_dark_color);
+  color: var(--v_grey_dark_color);
 }
