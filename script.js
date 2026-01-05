@@ -41,7 +41,7 @@ const gameBoard = (function() {
     loopOnBoard((ii,jj) => {
       if(board[ii][jj] === null){
         result = true;
-        return false; // stop the loop, no need to continue is not empty
+        return false; // stop the loop, no need to continue if not empty
       };
     });
     return result;
