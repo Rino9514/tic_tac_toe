@@ -10,26 +10,26 @@
 <body>
   <main class="center">
     <h1 class="marge_botton">Tic Tac Toe</h1>
-    <div class="container marge_botton">
-      <div class="score_container">
+    <div class="container">
+      <div class="score_container marge_botton">
           <p>Player 1 score : <span class="score_player1">0</span></p>
           <p>Player 2 score : <span class="score_player2">0</span></p>
       </div>
-      <p class="prompter marge_botton">prompter</p>
+      <p class="prompter marge_botton">Player 1 turn</p>
       <div class="game_container marge_botton">
-        <div class="case"></div>
-        <div class="case"></div>
-        <div class="case"></div>
-        <div class="case"></div>
-        <div class="case"></div>
-        <div class="case"></div>
-        <div class="case"></div>
-        <div class="case"></div>
-        <div class="case"></div>
+        <div class="case" data-row=0 data-col=0></div>
+        <div class="case" data-row=0 data-col=1></div>
+        <div class="case" data-row=0 data-col=2></div>
+        <div class="case" data-row=1 data-col=0></div>
+        <div class="case" data-row=1 data-col=1></div>
+        <div class="case" data-row=1 data-col=2></div>
+        <div class="case" data-row=2 data-col=0></div>
+        <div class="case" data-row=2 data-col=1></div>
+        <div class="case" data-row=2 data-col=2></div>
       </div>
       <div class="actions_buttons">
-        <button>Reset</button>
-        <button>New Game</button>
+        <button class="reset">Reset</button>
+        <button class="restart">New Game</button>
       </div>
     </div>
   </main>

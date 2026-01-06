@@ -75,6 +75,9 @@ function createPlayer (name, marker) {
   function addScore(){
     score++;
   };
+  function resetScore(){
+    score=0;
+  }
   function getScore(){
     return score;
   };
@@ -85,9 +88,10 @@ function createPlayer (name, marker) {
     return marker;
   };
   function displayInfos(){
-    console.log("Score player " + game_name + " " + score);
+    console.log("Score player " + game_name + " : " + score);
   };
   return {addScore,
+    resetScore,
     getScore,
     getName,
     getMarker,
@@ -95,54 +99,86 @@ function createPlayer (name, marker) {
   };
 };
 
-const gamecontroller = (function() {
+const gameController = (function() {
   const players = [createPlayer(1,"o"), createPlayer(2,"x")];
   let currentPlayerIndex = 0;
-  let draw = false;
+  let firstPlayerIndex = 0;
 
   // private functions
-  // return true if the game is over, else false
-  const endGame = () => {
-    if (gameBoard.winnerCheck(players[currentPlayerIndex].getMarker())) {
-      players[currentPlayerIndex].addScore();
-      return true;
-    } else if (!gameBoard.hasEmptyCell()){
-      draw = true;
-      return true;
-      }
-    return false;
-  };
-
-  const displayEndGame = () => {
-    if (draw) console.log("This is a draw.");
-    else console.log("player "+players[currentPlayerIndex].getName()+ " has win the game.")
-  }
-
-  const resetVar = () => {
-    currentPlayerIndex = 0;
-    draw = false;
-  }
+  // const displayEndGame = () => {
+  //   if (draw) console.log("This is a draw.");
+  //   else console.log("player "+players[currentPlayerIndex].getName()+ " has win the game.")
+  // }
 
   // public functions
-  const game = () => {
-    gameBoard.resetBoard();
-    resetVar();
-    // loop of the game
-    while (true) {
-      const x = parseInt(prompt("player " + players[currentPlayerIndex].getName() + " where do you play on x : "),10);
-      const y = parseInt(prompt("player " + players[currentPlayerIndex].getName() + " where do you play on y : "),10);
+  const getPlayer =  (index) => players[index];
 
-      if (!gameBoard.setBoard(x,y,players[currentPlayerIndex].getMarker())) { // stop if input not valid
-        console.log("Invalid move, try again.");
-        continue; // retry for the current player
-      }
-      if (endGame()) {
-        displayEndGame();
-        return;
-      }
-      currentPlayerIndex = (currentPlayerIndex + 1) % 2;
-      // console.log(!gameBoard.hasEmptyCell(),!gameBoard.winnerCheck(players[0].getMarker()), !gameBoard.winnerCheck(players[1].getMarker()))
-    };
+  const getCurrentPlayer =  () => players[currentPlayerIndex];
+
+  const toTheFirstPlayer =  () => currentPlayerIndex = firstPlayerIndex;
+
+  const playRound = () => {
+    // stop if input not valid
+    if (!gameBoard.setBoard(x,y,players[currentPlayerIndex].getMarker())) {
+      return false;
+    }
+    // here to prevent when a game is finish, first player have to change
+    currentPlayerIndex = (currentPlayerIndex + 1) % 2;
+
+    if (gameBoard.winnerCheck(players[currentPlayerIndex].getMarker())) {
+      players[currentPlayerIndex].addScore();
+      //remember who is the first player of the round
+      firstPlayerIndex = (firstPlayerIndex + 1) % 2;
+      return "win";
+    }
+
+    if (!gameBoard.hasEmptyCell()){
+      //remember who is the first player of the round
+      firstPlayerIndex = (firstPlayerIndex + 1) % 2;
+      return "draw";
+    }
   };
-  return {game}
+
+  const restartGame = () => {
+    gameBoard.resetBoard();
+    currentPlayerIndex = 0;
+    players[0].resetScore();
+    players[1].resetScore();
+  }
+  return {restartGame,playRound,getPlayer,getCurrentPlayer,toTheFirstPlayer}
+})();
+
+const displayController = (function(){
+  const cases = document.querySelectorAll(".case");
+  const prompter = document.querySelector(".prompter");
+  const score_player1 = document.querySelector(".score_player1");
+  const score_player2 = document.querySelector(".score_player2");
+  const reset_btn = document.querySelector(".reset");
+  const restart_btn = document.querySelector(".restart");
+
+  //private
+  const updatePrompter = (text) => {
+    prompter.textContent = text;
+  };
+  const updateScore = () => {
+    score_player1.textContent = gameController.getPlayer(0).getScore();
+    score_player2.textContent = gameController.getPlayer(1).getScore();
+  }
+  const clearBoardUI = () => {
+    cases.forEach(cell => cell.textContent = "");
+  };
+  //reset the round
+  reset_btn.addEventListener("click", () => {
+    gameBoard.resetBoard();
+    clearBoardUI();
+    gameController.toTheFirstPlayer();
+  });
+  //restart the whole game
+  restart_btn.addEventListener("click", () => {
+    gameController.restartGame();
+    clearBoardUI();
+    updatePrompter("Player "+ gameController.getPlayer(0).getName() + " turn");
+    updateScore();
+  });
+
 })();
