@@ -54,6 +54,13 @@ html {
 
 .case {
   background-color: var(--v_white_color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: calc(500px/4);       /* taille du X / O */
+  font-weight: bold;
+
 }
 
 

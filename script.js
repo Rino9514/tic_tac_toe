@@ -25,7 +25,7 @@ const gameBoard = (function() {
   };
   //no {} mean return something
   const isValid = (ii,jj,marker) =>
-    (marker === 'x' || marker === 'o') &&
+    (marker === 'X' || marker === 'O') &&
     Number.isInteger(ii) && Number.isInteger(jj) &&
     ii >= 0 && ii <= 2 && jj >= 0 && jj <= 2 &&
     board[ii][jj] === null;
@@ -100,15 +100,9 @@ function createPlayer (name, marker) {
 };
 
 const gameController = (function() {
-  const players = [createPlayer(1,"o"), createPlayer(2,"x")];
+  const players = [createPlayer(1,"X"), createPlayer(2,"O")];
   let currentPlayerIndex = 0;
   let firstPlayerIndex = 0;
-
-  // private functions
-  // const displayEndGame = () => {
-  //   if (draw) console.log("This is a draw.");
-  //   else console.log("player "+players[currentPlayerIndex].getName()+ " has win the game.")
-  // }
 
   // public functions
   const getPlayer =  (index) => players[index];
@@ -117,26 +111,30 @@ const gameController = (function() {
 
   const toTheFirstPlayer =  () => currentPlayerIndex = firstPlayerIndex;
 
-  const playRound = () => {
+  const playRound = (xx,yy) => {
     // stop if input not valid
-    if (!gameBoard.setBoard(x,y,players[currentPlayerIndex].getMarker())) {
+    if (!gameBoard.setBoard(xx,yy,players[currentPlayerIndex].getMarker())) {
       return false;
     }
-    // here to prevent when a game is finish, first player have to change
-    currentPlayerIndex = (currentPlayerIndex + 1) % 2;
 
     if (gameBoard.winnerCheck(players[currentPlayerIndex].getMarker())) {
       players[currentPlayerIndex].addScore();
+      currentPlayerIndex = (currentPlayerIndex + 1) % 2;
       //remember who is the first player of the round
-      firstPlayerIndex = (firstPlayerIndex + 1) % 2;
+      firstPlayerIndex = currentPlayerIndex;
       return "win";
     }
 
     if (!gameBoard.hasEmptyCell()){
+      currentPlayerIndex = (currentPlayerIndex + 1) % 2;
       //remember who is the first player of the round
-      firstPlayerIndex = (firstPlayerIndex + 1) % 2;
+      firstPlayerIndex = currentPlayerIndex;
       return "draw";
     }
+
+    currentPlayerIndex = (currentPlayerIndex + 1) % 2;
+
+    return "continue";;
   };
 
   const restartGame = () => {
@@ -167,18 +165,59 @@ const displayController = (function(){
   const clearBoardUI = () => {
     cases.forEach(cell => cell.textContent = "");
   };
+  // handle the click on the cases,
+  // check the win, draw and change the prompter and the cases value and the tab of the board
+  const handleCLick = (event) => {
+    const cell = event.currentTarget;
+    const row = Number(cell.dataset.row);
+    const col = Number(cell.dataset.col);
+    const currentPlayer = gameController.getCurrentPlayer();
+    const resultRound = gameController.playRound(row,col);
+
+    // end of the fonction when have a problem
+    if (!resultRound) return;
+    cell.textContent = currentPlayer.getMarker();
+
+    if (resultRound === "continue"){
+      updatePrompter("Player " + gameController.getCurrentPlayer().getName() + " turn");
+    }
+    else if (resultRound === "draw") {
+      updatePrompter("It's a DRAW ! ")
+      removeListeners();
+    }
+    else if (resultRound === "win") {
+      updatePrompter("Player " + currentPlayer.getName()+ " WIN !");
+      updateScore();
+      removeListeners();
+    }
+
+  };
+  //create eventlistener on all cases
+  const addListeners = () => {
+    cases.forEach( element => element.addEventListener("click", handleCLick));
+  }
+  //remove eventlistener on all cases
+  const removeListeners = () => {
+    cases.forEach( element => element.removeEventListener("click", handleCLick));
+  }
   //reset the round
   reset_btn.addEventListener("click", () => {
     gameBoard.resetBoard();
     clearBoardUI();
     gameController.toTheFirstPlayer();
+    updatePrompter("Player " + gameController.getCurrentPlayer().getName() + " turn");
+    removeListeners();
+    addListeners();
   });
   //restart the whole game
   restart_btn.addEventListener("click", () => {
     gameController.restartGame();
     clearBoardUI();
-    updatePrompter("Player "+ gameController.getPlayer(0).getName() + " turn");
+    updatePrompter("Player "+ gameController.getCurrentPlayer().getName() + " turn");
     updateScore();
+    removeListeners();
+    addListeners();
   });
 
+    addListeners(); //make the game playable instantly
 })();
